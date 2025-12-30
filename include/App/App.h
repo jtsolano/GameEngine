@@ -7,8 +7,6 @@
  * 
  * Main application class that manages the application lifecycle.
  * Uses SDL3 to create a window, initialize OpenGL context, and handle input events.
- * Coordinates the initialization and execution of the main game loop, including
- * scene management and UI updates.
  */
 class App
 {

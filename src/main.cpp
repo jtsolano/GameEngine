@@ -1,11 +1,7 @@
-#include <iostream>
-#include "App/App.h"
-
+#include <App.h>
 
 int main(int argc, char* argv[])
 {
-	using namespace std;
-
 	App App;
 	App.Initialize();
 

@@ -165,13 +165,15 @@ void App::ProcessInput(SDL_Event* Event)
 	}
 
 	// Support window resize
-	if (Event->type == SDL_EVENT_WINDOW_RESIZED) {
+	if (Event->type == SDL_EVENT_WINDOW_RESIZED)
+	{
 		m_Width = Event->window.data1;
 		m_Height = Event->window.data2;
 	}
 
 	// Q to capture mouse 
-	if (Event->type == SDL_EVENT_KEY_DOWN && Event->key.scancode == SDL_SCANCODE_Q) {
+	if (Event->type == SDL_EVENT_KEY_DOWN && Event->key.scancode == SDL_SCANCODE_Q)
+	{
 		m_bMouseCaptured = !m_bMouseCaptured;
 		SDL_SetWindowRelativeMouseMode(m_Window, m_bMouseCaptured ? true : false);
 	}
