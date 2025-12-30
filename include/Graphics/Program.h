@@ -29,6 +29,8 @@ public:
 	// Destroys the program.
 	void Destroy();
 
+	uint GetProgramID() const { return m_ProgramId; }
+
 protected:
 
 	void Init();

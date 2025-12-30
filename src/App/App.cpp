@@ -7,6 +7,9 @@
 #include <Program.h>
 #include <VertexBuffer.h>
 
+#include <glm/gtc/matrix_transform.hpp> // lookAt, perspective
+#include <glm/gtc/type_ptr.hpp>
+
 void App::Initialize()
 {
 	// Intialize video and return false if fails.
@@ -205,9 +208,13 @@ void App::SetupScene()
 
 	const char* vertexShaderSource = "#version 330 core\n"
 		"layout (location = 0) in vec3 aPos;\n"
+
+		"uniform mat4 model;\n"
+		"uniform mat4 view;\n"
+		"uniform mat4 projection;\n"
 		"void main()\n"
 		"{\n"
-		"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+		"   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
 		"}\0";
 
 	Programs[0]->AddShader(EShaderType::VERTEX_SHADER, vertexShaderSource);
@@ -248,6 +255,24 @@ void App::SetupScene()
 
 void App::Draw()
 {
+	glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)m_Width/ (float)m_Height, 0.1f, 100.0f);
+
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+	glm::mat4 view = glm::mat4(1.0f);
+	// note that we're translating the scene in the reverse direction of where we want to move
+	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+	int modelLoc = glGetUniformLocation(Programs[0]->GetProgramID(), "model");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+	int viewLoc = glGetUniformLocation(Programs[0]->GetProgramID(), "view");
+	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+	int projLoc = glGetUniformLocation(Programs[0]->GetProgramID(), "projection");
+	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+
 	Programs[0]->Use();
 	VAOs[0]->Draw();
 }
