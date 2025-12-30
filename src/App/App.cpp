@@ -1,8 +1,11 @@
 
 #include <App.h>
-#include "imgui.h"
-#include "imgui_impl_sdl3.h"
-#include "imgui_impl_opengl3.h"
+#include <imgui.h>
+#include <imgui_impl_sdl3.h>
+#include <imgui_impl_opengl3.h>
+
+#include <Program.h>
+#include <VertexBuffer.h>
 
 void App::Initialize()
 {
@@ -62,6 +65,8 @@ void App::Initialize()
 	ImGui_ImplSDL3_InitForOpenGL(m_Window, m_GLContext);
 	ImGui_ImplOpenGL3_Init("#version 460");
 
+	SetupScene();
+
 	Loop();
 }
 
@@ -93,16 +98,22 @@ void App::Loop()
 		float dt = (float)((now - last) / freq);
 		last = now;
 
+		glEnable(GL_DEPTH_TEST);
+
+		glClearColor(0.2f, 0.2f, 0.2f, 1.f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// App's Draw
+		Draw();
+
+#if 0
+
 		// Start ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplSDL3_NewFrame();
 		ImGui::NewFrame();
 
-		// App's Draw
-		Draw();
 
-		glClear(GL_COLOR_BUFFER_BIT);
-		glClearColor(0.2f, 0.2f, 0.2f, 1.f);
 
 		// ImGui UI
 		{
@@ -118,6 +129,10 @@ void App::Loop()
 		// Render ImGui
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+#endif
+
+
+
 
 		SDL_GL_SwapWindow(m_Window);
 		
@@ -184,9 +199,56 @@ void App::ProcessInput(SDL_Event* Event)
 	}
 }
 
+void App::SetupScene()
+{
+	Programs.push_back(make_shared<Program>());
+
+	const char* vertexShaderSource = "#version 330 core\n"
+		"layout (location = 0) in vec3 aPos;\n"
+		"void main()\n"
+		"{\n"
+		"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+		"}\0";
+
+	Programs[0]->AddShader(EShaderType::VERTEX_SHADER, vertexShaderSource);
+
+
+	const char* fragmentShaderSource = "#version 330 core\n"
+		"out vec4 FragColor; \n"
+		"void main()\n"
+		"{\n"
+		"	FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f); \n"
+		"}\n";
+
+
+	Programs[0]->AddShader(EShaderType::FRAGMENT_SHADER, fragmentShaderSource);
+	Programs[0]->Compile();
+	Programs[0]->Use();
+
+	VAOs.push_back(make_shared<VertexArray>());
+
+	VAOs[0]->Initialize();
+
+	float vertices[] = {
+	 0.5f,  0.5f, 0.0f,  // top right
+	 0.5f, -0.5f, 0.0f,  // bottom right
+	-0.5f, -0.5f, 0.0f,  // bottom left
+	-0.5f,  0.5f, 0.0f   // top left 
+		};
+
+	VAOs[0]->m_VBO.SetData(vertices, sizeof(vertices));
+
+	unsigned int indices[] = {  // note that we start from 0!
+	0, 1, 3,   // first triangle
+	1, 2, 3    // second triangle
+	};
+
+	VAOs[0]->m_EBO.SetData(indices, sizeof(indices));
+}
+
 void App::Draw()
 {
-
-
+	Programs[0]->Use();
+	VAOs[0]->Draw();
 }
 

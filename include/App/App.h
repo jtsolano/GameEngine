@@ -1,6 +1,9 @@
 #pragma once
 
 #include <SDL3/SDL.h>
+#include <Program.h>
+#include <VertexArray.h>
+#include <memory>
 
 /**
  * App
@@ -27,6 +30,9 @@ protected:
 
 	void ProcessInput(SDL_Event* Event);
 	
+	/* Called once after Initialize */
+	void SetupScene();
+
 	/* Called each frame just before we clear the screen. Place here draw calls. */
 	void Draw();
 
@@ -42,4 +48,7 @@ private:
 
 	float m_MouseX = 0.f;
 	float m_MouseY = 0.f;
+
+	vector<shared_ptr<Program>> Programs;
+	vector<shared_ptr<VertexArray>> VAOs;
 };
