@@ -51,4 +51,7 @@ private:
 
 	vector<shared_ptr<Program>> Programs;
 	vector<shared_ptr<VertexArray>> VAOs;
+
+	mat4 m_ProjectionMatrix;
+
 };

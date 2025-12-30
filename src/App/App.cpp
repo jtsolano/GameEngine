@@ -109,7 +109,7 @@ void App::Loop()
 		// App's Draw
 		Draw();
 
-#if 0
+#if 1
 
 		// Start ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();
@@ -204,6 +204,9 @@ void App::ProcessInput(SDL_Event* Event)
 
 void App::SetupScene()
 {
+	// Setup projection matrix.
+	m_ProjectionMatrix = glm::perspective(glm::radians(45.0f), (float)m_Width / (float)m_Height, 0.1f, 100.0f);
+
 	Programs.push_back(make_shared<Program>());
 
 	const char* vertexShaderSource = "#version 330 core\n"
@@ -255,14 +258,10 @@ void App::SetupScene()
 
 void App::Draw()
 {
-	glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)m_Width/ (float)m_Height, 0.1f, 100.0f);
-
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-	glm::mat4 view = glm::mat4(1.0f);
-	// note that we're translating the scene in the reverse direction of where we want to move
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
 
 	int modelLoc = glGetUniformLocation(Programs[0]->GetProgramID(), "model");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -271,7 +270,7 @@ void App::Draw()
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
 	int projLoc = glGetUniformLocation(Programs[0]->GetProgramID(), "projection");
-	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(m_ProjectionMatrix));
 
 	Programs[0]->Use();
 	VAOs[0]->Draw();

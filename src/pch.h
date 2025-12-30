@@ -5,7 +5,9 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <glm/glm.hpp>
 
 using namespace std;
-
+using namespace glm;
+ 
 typedef unsigned int uint;
