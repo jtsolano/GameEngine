@@ -26,12 +26,6 @@ void Program::Init()
 	m_ProgramId = glCreateProgram();
 }
 
-void Program::AddShader(EShaderType InShaderType, string InShaderPath)
-{
-
-
-}
-
 void Program::AddShader(EShaderType InShaderType, const char* ShaderCode)
 {
 	if (m_ProgramId == 0)
@@ -57,6 +51,71 @@ void Program::AddShader(EShaderType InShaderType, const char* ShaderCode)
 
 	glAttachShader(m_ProgramId, ShaderId);
 	ShadersIds.push_back(ShaderId);
+}
+
+void Program::AddShader(string ShaderSource)
+{
+	unordered_map<EShaderType, string> ShaderStagesMap;
+
+	EShaderType CurrentStaderType;
+	
+	bool bHasStage = false;
+
+	size_t Pos = 0;
+	while (Pos < ShaderSource.size())
+	{
+		// Find next line end
+		size_t LineEndPos = ShaderSource.find('\n', Pos);
+
+		// Handles last line where there might not be a \n
+		if (LineEndPos == string::npos)
+		{
+			LineEndPos = ShaderSource.size();
+		}
+
+		// Get current line
+		string CurrentLine = ShaderSource.substr(Pos, LineEndPos - Pos);
+
+		// Windows line endings can have \r at end and it breaks comparisons, remove it.
+		if (!CurrentLine.empty() && CurrentLine.back() == '\r')
+		{
+			CurrentLine.pop_back();
+		}
+
+		// Detect stage
+		if (CurrentLine.rfind("#stage ", 0) == 0)
+		{
+			// Get substring that starts at 7 and up to the end of CurrentLine.
+			string stageName = CurrentLine.substr(7);
+
+			if (stageName == "vertex")
+			{
+				CurrentStaderType = EShaderType::VERTEX_SHADER;
+			}
+			else if (stageName == "fragment")
+			{
+				CurrentStaderType = EShaderType::FRAGMENT_SHADER;
+			}
+			else
+			{
+				cout << "Unknown shader stage: " + stageName << endl;
+			}
+
+			bHasStage = true;
+			ShaderStagesMap[CurrentStaderType].clear();
+		}
+		else if (bHasStage) {
+			ShaderStagesMap[CurrentStaderType] += CurrentLine;
+			ShaderStagesMap[CurrentStaderType] += '\n';
+		}
+
+		Pos = (LineEndPos < ShaderSource.size()) ? LineEndPos + 1 : LineEndPos;
+	}
+
+	for (const pair<EShaderType, string>& ShaderStage : ShaderStagesMap)
+	{
+		AddShader(ShaderStage.first, ShaderStage.second.c_str());
+	}
 }
 
 void Program::Compile()

@@ -14,12 +14,10 @@ public:
 
 	~Program();
 
-
-	// Specifies a shader path from the shaders folder to load the shader from.
-	void AddShader(EShaderType InShaderType, string InShaderPath);
-
 	// Passes in directly the shader code.
 	void AddShader(EShaderType InShaderType, const char* ShaderCode);
+
+	void AddShader(string ShaderSource);
 
 	void Compile();
 
@@ -36,6 +34,7 @@ protected:
 	void Init();
 
 	void ClearShaders();
+
 
 	uint m_ProgramId = 0;
 	vector<uint> ShadersIds;
