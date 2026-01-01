@@ -1,8 +1,7 @@
 #pragma once
 
 #include <SDL3/SDL.h>
-#include <Program.h>
-#include <VertexArray.h>
+#include <Drawable.h>
 #include <memory>
 
 /**
@@ -49,8 +48,7 @@ private:
 	float m_MouseX = 0.f;
 	float m_MouseY = 0.f;
 
-	vector<shared_ptr<Program>> Programs;
-	vector<shared_ptr<VertexArray>> VAOs;
+	vector<shared_ptr<Drawable>> m_Meshes;
 
 	mat4 m_ProjectionMatrix;
 

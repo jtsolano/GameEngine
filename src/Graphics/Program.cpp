@@ -9,31 +9,38 @@ GLuint GetShaderCode(EShaderType InShaderType)
 
 	case EShaderType::FRAGMENT_SHADER:
 		return GL_FRAGMENT_SHADER;
+	default:
+		return 0;
 	}
 }
 
+
+Program::Program()
+{
+	m_ProgramId = glCreateProgram();
+}
 
 Program::~Program()
 {
 	if (m_ProgramId != 0)
 	{
-		Destroy();
+		glDeleteProgram(m_ProgramId);
+		m_ProgramId = 0;
 	}
-}
 
-void Program::Init()
-{
-	m_ProgramId = glCreateProgram();
+	ClearShaders();
 }
 
 void Program::AddShader(EShaderType InShaderType, const char* ShaderCode)
 {
-	if (m_ProgramId == 0)
+	GLuint ShaderType = GetShaderCode(InShaderType);
+	if (ShaderType == 0)
 	{
-		Init();
+		cout << "Invalid shader enum while adding shader" << endl;
+		return;
 	}
 
-	uint ShaderId = glCreateShader(GetShaderCode(InShaderType));
+	uint ShaderId = glCreateShader(ShaderType);
 	glShaderSource(ShaderId, 1, &ShaderCode, nullptr);
 	glCompileShader(ShaderId);
 
@@ -47,6 +54,7 @@ void Program::AddShader(EShaderType InShaderType, const char* ShaderCode)
 		glGetShaderInfoLog(ShaderId, 512, nullptr, Log);
 		cout << Log << endl;
 		glDeleteShader(ShaderId);
+		return;
 	}
 
 	glAttachShader(m_ProgramId, ShaderId);
@@ -139,11 +147,10 @@ void Program::Use()
 	glUseProgram(m_ProgramId);
 }
 
-void Program::Destroy()
+void Program::SetUniformMatrix4f(const string& UniformName, float* Matrix)
 {
-	glDeleteProgram(m_ProgramId);
-	m_ProgramId = 0;
-	ClearShaders();
+	int UniformLocation = glGetUniformLocation(m_ProgramId, UniformName.c_str());
+	glUniformMatrix4fv(UniformLocation, 1, GL_FALSE, Matrix);
 }
 
 void Program::ClearShaders()

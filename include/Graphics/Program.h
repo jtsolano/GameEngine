@@ -2,6 +2,7 @@
 
 enum class EShaderType
 {
+	UNKNOWN_SHADER,
 	VERTEX_SHADER,
 	FRAGMENT_SHADER,
 
@@ -10,7 +11,7 @@ enum class EShaderType
 class Program
 {
 public:
-	Program() {}
+	Program();
 
 	~Program();
 
@@ -24,17 +25,13 @@ public:
 	// Activates and uses this program.
 	void Use();
 
-	// Destroys the program.
-	void Destroy();
+	void SetUniformMatrix4f(const string& UniformName, float* Matrix);
 
 	uint GetProgramID() const { return m_ProgramId; }
 
 protected:
 
-	void Init();
-
 	void ClearShaders();
-
 
 	uint m_ProgramId = 0;
 	vector<uint> ShadersIds;

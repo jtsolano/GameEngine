@@ -5,7 +5,8 @@
 #include <imgui_impl_opengl3.h>
 
 #include <Program.h>
-#include <VertexBuffer.h>
+#include <Mesh.h>
+#include <PrimitiveMeshBuilder.h>
 
 #include <glm/gtc/matrix_transform.hpp> // lookAt, perspective
 #include <glm/gtc/type_ptr.hpp>
@@ -199,53 +200,32 @@ void App::SetupScene()
 	// Setup projection matrix.
 	m_ProjectionMatrix = glm::perspective(glm::radians(45.0f), (float)m_Width / (float)m_Height, 0.1f, 100.0f);
 
-	Programs.push_back(make_shared<Program>());
+	shared_ptr<Drawable> Quad = make_shared<Drawable>();
+	m_Meshes.push_back(Quad);
 
-	string ShaderSourceFilePath = string(PROJECT_ROOT) + string("shaders/basic_triangle.glsl");
-	string ShaderSource = FileUtils::ReadFile(ShaderSourceFilePath.c_str());
-	Programs[0]->AddShader(ShaderSource.c_str());
-
-	Programs[0]->Compile();
-	Programs[0]->Use();
-
-	VAOs.push_back(make_shared<VertexArray>());
-
-	VAOs[0]->Initialize();
-
-	float vertices[] = {
-	 0.5f,  0.5f, 0.0f,  // top right
-	 0.5f, -0.5f, 0.0f,  // bottom right
-	-0.5f, -0.5f, 0.0f,  // bottom left
-	-0.5f,  0.5f, 0.0f   // top left 
-		};
-
-	VAOs[0]->m_VBO.SetData(vertices, sizeof(vertices));
-
-	unsigned int indices[] = {  // note that we start from 0!
-	0, 1, 3,   // first triangle
-	1, 2, 3    // second triangle
-	};
-
-	VAOs[0]->m_EBO.SetData(indices, sizeof(indices));
+	{
+		string ShaderSourceFilePath = string(PROJECT_ROOT) + string("shaders/basic_triangle.glsl");
+		string ShaderSource = FileUtils::ReadFile(ShaderSourceFilePath.c_str());
+		Quad->m_Program->AddShader(ShaderSource.c_str());
+		Quad->m_Program->Compile();
+		Quad->m_Mesh = PrimitiveMeshBuilder::BuildQuad(0.5f);
+	}
 }
 
 void App::Draw()
 {
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(-105.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
 	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
 
-	int modelLoc = glGetUniformLocation(Programs[0]->GetProgramID(), "model");
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+	for (shared_ptr<Drawable> Mesh : m_Meshes)
+	{
+		Mesh->m_Program->SetUniformMatrix4f("model", glm::value_ptr(model));
+		Mesh->m_Program->SetUniformMatrix4f("view", glm::value_ptr(view));
+		Mesh->m_Program->SetUniformMatrix4f("projection", glm::value_ptr(m_ProjectionMatrix));
 
-	int viewLoc = glGetUniformLocation(Programs[0]->GetProgramID(), "view");
-	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-
-	int projLoc = glGetUniformLocation(Programs[0]->GetProgramID(), "projection");
-	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(m_ProjectionMatrix));
-
-	Programs[0]->Use();
-	VAOs[0]->Draw();
+		Mesh->Draw();
+	}
 }
 
