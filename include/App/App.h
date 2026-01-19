@@ -2,6 +2,7 @@
 
 #include <SDL3/SDL.h>
 #include <Drawable.h>
+#include <Texture.h>
 #include <memory>
 
 /**
@@ -33,7 +34,7 @@ protected:
 	void SetupScene();
 
 	/* Called each frame just before we clear the screen. Place here draw calls. */
-	void Draw();
+	void Draw(float DeltaTime);
 
 private:
 	SDL_Window* m_Window = nullptr;
@@ -48,7 +49,9 @@ private:
 	float m_MouseX = 0.f;
 	float m_MouseY = 0.f;
 
-	vector<shared_ptr<Drawable>> m_Meshes;
+	vector<shared_ptr<Drawable>> m_Drawables;
+
+	vector<shared_ptr<Texture>> m_Textures;
 
 	mat4 m_ProjectionMatrix;
 

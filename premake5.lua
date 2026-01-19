@@ -27,6 +27,7 @@ project "GameEngine"
    includedirs { "thirdparty/glm-1.0.2"}
    includedirs { "thirdparty/imgui-1.92.4" }
    includedirs { "thirdparty/imgui-1.92.4/backends" }
+   includedirs { "thirdparty/stb" }
 
    files { "src/**.h", "src/**.hpp", "src/**.c", "src/**.cpp", "include/**.h", "include/**.hpp" }
 

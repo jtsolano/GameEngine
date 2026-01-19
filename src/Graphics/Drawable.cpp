@@ -6,8 +6,12 @@ Drawable::Drawable()
 	m_Mesh = make_shared<Mesh>();
 }
 
-void Drawable::Draw()
+void Drawable::Translate(const glm::vec3& InTranslation)
 {
-	m_Program->Use();
-	m_Mesh->Draw();
+	m_ModelMatrix = glm::translate(m_ModelMatrix, InTranslation);
+}
+
+void Drawable::Rotate(float InAngleDegrees, const glm::vec3& InAxis)
+{
+	m_ModelMatrix = glm::rotate(m_ModelMatrix, glm::radians(InAngleDegrees), InAxis);
 }

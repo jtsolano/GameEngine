@@ -15,3 +15,5 @@ using namespace glm;
 #include <FileUtils.h>
  
 typedef unsigned int uint;
+
+#define STB_IMAGE_IMPLEMENTATION
